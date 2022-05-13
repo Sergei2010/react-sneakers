@@ -30,13 +30,13 @@
 	margin-bottom: 40px;
 }
 
-.cartItem {
+.cart-item {
 	border: 1px solid #f3f3f3;
 	border-radius: 20px;
 	overflow: hidden;
 	padding: 20px;
 
-	.cartItemImg {
+	.cart-item-img {
 		width: 70px;
 		height: 70px;
 		background-size: contain;
@@ -54,7 +54,7 @@
 		font-size: 14px;
 	}
 
-	.removeBtn {
+	.remove-btn {
 		opacity: 0.5;
 		cursor: pointer;
 		transition: opacity 0.15s ease-in-out;
@@ -65,7 +65,7 @@
 	}
 }
 
-.cartTotalBlock {
+.cart-total-block {
 	ul {
 		margin-bottom: 30px !important;
 		li {
