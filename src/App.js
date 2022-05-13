@@ -3,18 +3,24 @@ import Card from './components/Card'
 import Header from './components/Header'
 import Drawer from './components/Drawer'
 
-const arr = [
-  { title: 'Мужские кроссовки Nike Blazer Mid Suede', price: 12999, imageUrl: '/img/sneakers/1.jpg' },
-  { title: 'Мужские кроссовки Nike Air Max 270', price: 15600, imageUrl: '/img/sneakers/2.jpg' },
-  { title: 'Мужские кроссовки Nike Blazer Mid Suede', price: 8499, imageUrl: '/img/sneakers/3.jpg' },
-  { title: 'Мужские кроссовки Puma X Aka Boku', price: 8999, imageUrl: '/img/sneakers/4.jpg' },
-]
-
 function App() {
+  const [items, setItems] = React.useState([])
+  const [cartItems, setCartItems] = React.useState([])
   const [cartOpened, setCartOpened] = React.useState(false)
+
+  React.useEffect(() => {
+    fetch('https://627cea9fbf2deb7174e3c0c2.mockapi.io/items')
+      .then((res) => { return res.json() })
+      .then((json) => setItems(json))
+  }, [])
+
+  const onAddToCart = (obj) => {
+    setCartItems((prev) => [...prev, obj])
+  }
+  console.log(cartItems)
   return (
     <div className="wrapper clear">
-      { cartOpened && <Drawer onClose={ () => setCartOpened(false) } /> }
+      { cartOpened && <Drawer items={ cartItems } onClose={ () => setCartOpened(false) } /> }
       <Header onClickCart={ () => setCartOpened(true) } />
       <div className="content p-40">
         <div className="d-flex align-center mb-40 justify-between">
@@ -24,14 +30,14 @@ function App() {
             <input type="text" placeholder="Поиск ..." />
           </div>
         </div>
-        <div className="d-flex">
-          { arr.map((item) =>
+        <div className="d-flex flex-wrap mb-30">
+          { items.map((item) =>
             <Card
               title={ item.title }
               price={ item.price }
               imageUrl={ item.imageUrl }
               onFavorite={ () => console.log('Добавил в закладки') }
-              onPlus={ () => console.log('Нажал плюс') } />) }
+              onPlus={ (obj) => onAddToCart(obj) } />) }
         </div>
       </div>
     </div>

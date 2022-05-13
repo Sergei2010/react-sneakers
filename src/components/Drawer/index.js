@@ -7,16 +7,28 @@ function itemStyle(style) {
 	return style + " d-flex align-center mb-20"
 }
 
-function Drawer(props) {
+function Drawer({ onClose, items = [] }) {
 	/* 	console.log(props) <- ERROR ?? */
+	/* 	console.log(items) <- ERROR ?? */
 	return (
 		<div className={ styles.overlay }>
 			<div className={ styles.drawer }>
 				<h2 className="mb-30 d-flex justify-between align-center">
-					Корзина <img className={ imgStyle(styles.removeBtn) } src="/img/btn-remove.svg" alt="Close" onClick={ props.onClose } />
+					Корзина <img className={ imgStyle(styles.removeBtn) } src="/img/btn-remove.svg" alt="Close" onClick={ onClose } />
 				</h2>
 				<div className={ styles.items }>
-					<div className={ itemStyle(styles.cartItem) }>
+					{ items.map((obj) => (
+						<div className={ itemStyle(styles.cartItem) }>
+							<div style={ { backgroundImage: `url(${obj.imageUrl})` } } className={ styles.cartItemImg }>
+							</div>
+							<div className="mr-20 flex">
+								<p className="mb-5">{ obj.title }</p>
+								<b>{ obj.price } руб.</b>
+							</div>
+							<img className={ imgStyle(styles.removeBtn) } src="/img/btn-remove.svg" alt="Remove" />
+						</div>
+					)) }
+					{/* 	<div className={ itemStyle(styles.cartItem) }>
 						<div style={ { backgroundImage: 'url(/img/sneakers/1.jpg)' } } className={ styles.cartItemImg }></div>
 						<div className="mr-20 flex">
 							<p className="mb-5">Мужские кроссовки Nike Blazer Mid Suede</p>
@@ -31,7 +43,7 @@ function Drawer(props) {
 							<b>12999 руб.</b>
 						</div>
 						<img className={ imgStyle(styles.removeBtn) } src="/img/btn-remove.svg" alt="Remove" />
-					</div>
+					</div> */}
 				</div>
 				<div className={ styles.cartTotalBlock }>
 					<ul>
