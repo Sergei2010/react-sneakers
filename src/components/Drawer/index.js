@@ -1,11 +1,11 @@
 import styles from './Drawer.module.scss'
 
-function imgStyle(style) {
+/* function imgStyle(style) {
 	return style + " cu-p"
-}
-function itemStyle(style) {
+} */
+/* function itemStyle(style) {
 	return style + " d-flex align-center mb-20"
-}
+} */
 
 function Drawer({ onClose, onRemove, items = [] }) {
 	/* 	console.log(props) <- ERROR ?? */
@@ -14,7 +14,7 @@ function Drawer({ onClose, onRemove, items = [] }) {
 		<div className={ styles.overlay }>
 			<div className={ styles.drawer }>
 				<h2 className="mb-30 d-flex justify-between align-center">
-					Корзина <img className={ imgStyle(styles.removeBtn) } src="/img/btn-remove.svg" alt="Close" onClick={ onClose } />
+					Корзина <img className={ styles.removeBtn + ' cu-p' } src="/img/btn-remove.svg" alt="Close" onClick={ onClose } />
 				</h2>
 
 				{
@@ -22,14 +22,14 @@ function Drawer({ onClose, onRemove, items = [] }) {
 						<>
 							<div className={ styles.items }>
 								{ items.map((obj) => (
-									<div key={ obj.id } className={ itemStyle(styles.cartItem) }>
+									<div key={ obj.id } className={ styles.cartItem + ' d-flex align-center mb-20' }>
 										<div style={ { backgroundImage: `url(${obj.imageUrl})` } } className={ styles.cartItemImg }>
 										</div>
 										<div className="mr-20 flex">
 											<p className="mb-5">{ obj.title }</p>
 											<b>{ obj.price } руб.</b>
 										</div>
-										<img onClick={ () => onRemove(obj.id) } className={ imgStyle(styles.removeBtn) } src="/img/btn-remove.svg" alt="Remove" />
+										<img onClick={ () => onRemove(obj.id) } className={ styles.removeBtn + ' cu-p' } src="/img/btn-remove.svg" alt="Remove" />
 									</div>
 								)) }
 							</div>
@@ -46,17 +46,17 @@ function Drawer({ onClose, onRemove, items = [] }) {
 										<b>1074 руб.</b>
 									</li>
 								</ul>
-								<button className="green-button">Оформить заказ <img src="/img/arrow.svg" alt="Arrow" /></button>
+								<button className={ styles.greenButton }>Оформить заказ <img src="/img/arrow.svg" alt="Arrow" /></button>
 							</div>
 						</>
 					)
 						:
 						(
-							<div className="cartEmpty d-flex align-center justify-center flex-column flex">
+							<div className={ styles.cartEmpty + ' d-flex align-center justify-center flex-column flex' }>
 								<img className="mb-20" width="120px" src='/img/empty-cart.jpg' alt="Empty" />
 								<h2>Корзина пустая</h2>
 								<p className="opacity-6">Добавьте хотя бы одну пару кроссовок</p>
-								<button className="green-button">
+								<button onClick={ onClose } className={ styles.greenButton }>
 									<img src="img/arrow.svg" alt="Arrow" />
 									Вернуться назад
 								</button>
