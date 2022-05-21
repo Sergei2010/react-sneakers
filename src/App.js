@@ -1,11 +1,10 @@
 import React from 'react'
 import axios from 'axios'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 
 import AppContext from './context'
 import Header from './components/Header'
 import Drawer from './components/Drawer'
-
 import Home from './pages/Home';
 import Favorites from './pages/Favorites'
 import Orders from './pages/Orders'
@@ -15,11 +14,12 @@ function App() {
   const [cartItems, setCartItems] = React.useState([])  // корзина
   const [searchValue, setSearchValue] = React.useState('') // поиск
   const [cartOpened, setCartOpened] = React.useState(false) // открытие корзины
-  const [favorites, setFavorites] = React.useState(false) // массив закладок
+  const [favorites, setFavorites] = React.useState([]) // массив закладок
   const [isLoading, setIsLoading] = React.useState(true)
 
+  const location = useLocation()  // для удаления item на странице 'favorites'
+
   React.useEffect(() => {
-    /* setIsLoading(true) */
 
     async function fetchData() {
       try {
@@ -45,12 +45,24 @@ function App() {
 
   const onAddToCart = async (obj) => {
     try {
-      if (cartItems.find((item) => Number(item.id) === Number(obj.id))) {
-        setCartItems((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
-        await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart/${obj.id}`)
+      const findItem = cartItems.find((item) => Number(item.parentId) === Number(obj.id))
+      if (findItem) {
+        setCartItems((prev) => prev.filter((item) => Number(item.parentId) !== Number(obj.id)))
+        await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart/${findItem.id}`)
       } else {
+        // устанавливаем в state фиктивный obj для ускорения
+        // потом меняем данные
         setCartItems(prev => [...prev, obj])
-        await axios.post('https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart', obj)
+        const { data } = await axios.post('https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart', obj)
+        setCartItems(prev => prev.map((item) => {
+          if (item.parentId === data.parentId) {
+            return {
+              ...item,
+              id: data.id
+            }
+          }
+          return item
+        }))
       }
     } catch (error) {
       alert('Ошибка при добавлении в карзину')
@@ -60,7 +72,7 @@ function App() {
 
   const onRemoveItem = async (id) => {
     try {
-      setCartItems((prev) => prev.filter((item) => item.id !== id))
+      setCartItems((prev) => prev.filter((item) => Number(item.id) !== Number(id)))
       await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart/${id}`)  // удаляю из корзины   mockApi
     } catch (error) {
       alert('Ошибка при удалении из корзины')
@@ -69,17 +81,38 @@ function App() {
   }
 
   const onAddToFavorite = async (obj) => {
-    try {
-      if (favorites.find((favObj) => Number(favObj.id) === Number(obj.id))) {
-        setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
-        await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${obj.id}`)
-      } else {
-        const { data } = await axios.post('https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites', obj)  // добавляю в корзину  mockApi
-        setFavorites((prev) => [...prev, data])
+    // если находимся на странице 'favorites', то удаляем item по клику
+    if (location.pathname === '/favorites') {
+      axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${obj.id}`)
+      setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
+    } else {
+      try {
+        const findItem = favorites.find((favObj) => {
+          return Number(favObj.parentId) === Number(obj.id)
+        })
+        if (findItem) {
+          setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(findItem.id)))
+          axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${findItem.id}`)
+        } else {
+          // добавляю в закладки и  mockApi
+          // устанавливаем в state фиктивный obj для ускорения
+          // потом меняем данные
+          setFavorites(prev => [...prev, obj])
+          const { data } = await axios.post('https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites', obj)
+          setFavorites(prev => prev.map((item) => {
+            if (item.parentId === data.parentId) {
+              return {
+                ...item,
+                id: data.id
+              }
+            }
+            return item
+          }))
+        }
+      } catch (error) {
+        alert('Не удалось добавить в фавориты')
+        console.error(error)
       }
-    } catch (error) {
-      alert('Не удалось добавить в фавориты')
-      console.error(error)
     }
   }
 
@@ -87,12 +120,12 @@ function App() {
     setSearchValue(e.target.value)
   }
 
-  /*  const isItemAdded = (id) => {
-     return cartItems.some((obj) => Number(obj.id) === Number(id))
-   } */
-
   const isItemAdded = (id) => {
-    return cartItems.some((obj) => Number(obj.id) === Number(id));
+    return cartItems.some((obj) => Number(obj.parentId) === Number(id));
+  }
+
+  const isItemFavorited = (id) => {
+    return favorites.some((obj) => Number(obj.parentId) === Number(id));
   }
 
   return (
@@ -102,6 +135,7 @@ function App() {
         cartItems,
         favorites,
         isItemAdded,
+        isItemFavorited,
         onAddToFavorite,
         setCartOpened,
         setCartItems,
