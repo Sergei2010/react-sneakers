@@ -17,6 +17,9 @@ function App() {
   const [favorites, setFavorites] = React.useState([]) // массив закладок
   const [isLoading, setIsLoading] = React.useState(true)
 
+  const findItem = (arr, sub) => {
+    return arr.find((item) => Number(item.parentId) === Number(sub.id))
+  }
   const location = useLocation()  // для удаления item на странице 'favorites'
 
   React.useEffect(() => {
@@ -45,10 +48,10 @@ function App() {
 
   const onAddToCart = async (obj) => {
     try {
-      const findItem = cartItems.find((item) => Number(item.parentId) === Number(obj.id))
-      if (findItem) {
+      const res = findItem(cartItems, obj)
+      if (res) {
         setCartItems((prev) => prev.filter((item) => Number(item.parentId) !== Number(obj.id)))
-        await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart/${findItem.id}`)
+        await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart/${res.id}`)
       } else {
         // устанавливаем в state фиктивный obj для ускорения
         // потом меняем данные
@@ -83,16 +86,19 @@ function App() {
   const onAddToFavorite = async (obj) => {
     // если находимся на странице 'favorites', то удаляем item по клику
     if (location.pathname === '/favorites') {
-      axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${obj.id}`)
-      setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
+      try {
+        axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${obj.id}`)
+        setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
+      } catch (error) {
+        alert('Не удалось удалить из фаворитов')
+        console.error(error)
+      }
     } else {
       try {
-        const findItem = favorites.find((favObj) => {
-          return Number(favObj.parentId) === Number(obj.id)
-        })
-        if (findItem) {
-          setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(findItem.id)))
-          axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${findItem.id}`)
+        const res = findItem(favorites, obj)
+        if (res) {
+          setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
+          axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${res.id}`)
         } else {
           // добавляю в закладки и  mockApi
           // устанавливаем в state фиктивный obj для ускорения
