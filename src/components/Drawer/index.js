@@ -24,7 +24,7 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
 			setIsOrderComplete(true)
 			setCartItems([])
 
-			// костыль для MockApi
+			// 'костыль' для MockApi
 			for (let i = 0; i < cartItems.length; i++) {
 				const item = cartItems[i];
 				await axios.delete('https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart/' + item.id);

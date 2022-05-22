@@ -34,8 +34,6 @@ function Orders() {
 				{ (isLoading ? [...Array(8)] : orders).map((item, i) =>
 					<Card
 						key={ i }
-						/* 	onFavorite={ (obj) => onAddToFavorite(obj) } */
-						/* onPlus={ (obj) => onAddToCart(obj) } */
 						loading={ isLoading }
 						{ ...item }
 					/>) }
