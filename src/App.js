@@ -87,8 +87,8 @@ function App() {
     // если находимся на странице 'favorites', то удаляем item по клику
     if (location.pathname === '/favorites') {
       try {
-        axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${obj.id}`)
         setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
+        await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${obj.id}`)
       } catch (error) {
         alert('Не удалось удалить из фаворитов')
         console.error(error)
@@ -98,7 +98,7 @@ function App() {
         const res = findItem(favorites, obj)
         if (res) {
           setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
-          axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${res.id}`)
+          await axios.delete(`https://627cea9fbf2deb7174e3c0c2.mockapi.io/favorites/${res.id}`)
         } else {
           // добавляю в закладки и  mockApi
           // устанавливаем в state фиктивный obj для ускорения
