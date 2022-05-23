@@ -1,6 +1,7 @@
 import React from 'react'
-import axios from 'axios'
 
+import cartService from "../../service/cart.service"
+import ordersService from "../../service/orders.service"
 import Info from '../../components/Info'
 import { useCart } from '../../hooks/useCart'
 
@@ -17,18 +18,17 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
 	const onClickOrder = async () => {
 		try {
 			setIsLoading(true)
-			const { data } = await axios.post('https://627cea9fbf2deb7174e3c0c2.mockapi.io/orders', {
-				items: cartItems,
-			})
-			setOrderId(data.id)
+			await ordersService
+				.post({ items: cartItems })
+				.then((res) => setOrderId(res.id))
 			setIsOrderComplete(true)
 			setCartItems([])
 
 			// 'костыль' для MockApi
 			for (let i = 0; i < cartItems.length; i++) {
-				const item = cartItems[i];
-				await axios.delete('https://627cea9fbf2deb7174e3c0c2.mockapi.io/cart/' + item.id);
-				await delay(1000);
+				const item = cartItems[i]
+				await cartService.delete(item.id)
+				await delay(1000)
 			}
 		} catch (error) {
 			alert('Ошибка при создании заказа :(');
@@ -40,7 +40,7 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
 		<div className={ `${styles.overlay} ${opened ? styles.overlayVisible : ''}` }>
 			<div className={ styles.drawer }>
 				<h2 className="mb-30 d-flex justify-between align-center">
-					Корзина <img className={ styles.removeBtn + ' cu-p' } src="img/btn-remove.svg" alt="Close" onClick={ onClose } />
+					Корзина <img className={ styles.removeBtn + ' cu-p' } src="/img/btn-remove.svg" alt="Close" onClick={ onClose } />
 				</h2>
 				{
 					items.length > 0 ? (
@@ -54,7 +54,7 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
 											<p className="mb-5">{ obj.title }</p>
 											<b>{ obj.price } руб.</b>
 										</div>
-										<img onClick={ () => onRemove(obj.id) } className={ styles.removeBtn + ' cu-p' } src="img/btn-remove.svg" alt="Remove" />
+										<img onClick={ () => onRemove(obj.id) } className={ styles.removeBtn + ' cu-p' } src="/img/btn-remove.svg" alt="Remove" />
 									</div>
 								)) }
 							</div>
@@ -71,7 +71,7 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
 										<b>{ Math.round(totalPrice * 5) / 100 } руб.</b>
 									</li>
 								</ul>
-								<button disabled={ isLoading } onClick={ onClickOrder } className={ styles.greenButton }>Оформить заказ <img src="img/arrow.svg" alt="Arrow" /></button>
+								<button disabled={ isLoading } onClick={ onClickOrder } className={ styles.greenButton }>Оформить заказ <img src="/img/arrow.svg" alt="Arrow" /></button>
 							</div>
 						</div>
 					)
@@ -80,7 +80,7 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
 							<Info
 								title={ isOrderComplete ? 'Заказ оформлен' : 'Корзина пустая' }
 								description={ isOrderComplete ? `Ваш заказ #${orderId} скоро будет передан службе курьерской доставки` : 'Добавьте хотя бы одну пару кроссовок' }
-								image={ isOrderComplete ? 'img/complete-order.jpg' : 'img/empty-cart.jpg' } />
+								image={ isOrderComplete ? '/img/complete-order.jpg' : '/img/empty-cart.jpg' } />
 						)
 				}
 			</div>
